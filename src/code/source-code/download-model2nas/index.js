@@ -9,7 +9,7 @@ exports.handler = async (_event, _context, callback) => {
   const filename = path.basename(fileUrl);
   const downloadDir = '/mnt/auto/embedding/text2vec-large-chinese';
   if (!fs.existsSync(downloadDir)) {
-    fs.mkdirSync(downloadDir);
+    fs.mkdirSync(downloadDir, { recursive: true });
   }
   const sdCkpt = path.join(downloadDir, filename);
   if (fs.existsSync(sdCkpt)) {
