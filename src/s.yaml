@@ -16,6 +16,8 @@ services:
       pre-deploy:
         - run: npm i
           path: ./code/source-code/download-model2nas
+      post-deploy:
+        - component: fc invoke  --service-name ${fc-model-download.output.service.name} --function-name model-download
     props:
       region: ${vars.region} # 关于变量的使用方法，可以参考：https://www.serverless-devs.com/serverless-devs/yaml#变量赋值
       service: ${vars.service}
@@ -35,9 +37,6 @@ services:
   embedding-service:
     component: fc
     actions:
-      pre-deploy:
-        - component: fc invoke  --service-name ${fc-model-download.output.service.name}
-            --function-name model-download
       post-deploy: # 在deploy之前运行
         - component: fc nas upload -r ./code/model-repo '/mnt/auto/embedding/text2vec-large-chinese'
           path: ./
