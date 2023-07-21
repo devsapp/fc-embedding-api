@@ -29,7 +29,7 @@ Parameters:
     serviceName:
       title: embedding的服务名
       type: string
-      default: 'fc-chat-plus-${default-suffix}'
+      default: 'fc-embedding-service-${default-suffix}'
       pattern: "^[a-zA-Z_][a-zA-Z0-9-_:/.]{0,127}$"
       description: ''
     functionName:
