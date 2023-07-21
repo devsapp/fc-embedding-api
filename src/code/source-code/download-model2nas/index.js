@@ -8,6 +8,9 @@ exports.handler = async (_event, _context, callback) => {
   const fileUrl = `https://serverless-ai-models-${region}.oss-cn-hangzhou-internal.aliyuncs.com/text2vec-large-chinese/pytorch_model.bin`;
   const filename = path.basename(fileUrl);
   const downloadDir = '/mnt/auto/embedding/text2vec-large-chinese';
+  if (!fs.existsSync(downloadDir)) {
+    fs.mkdirSync(downloadDir);
+  }
   const sdCkpt = path.join(downloadDir, filename);
   if (fs.existsSync(sdCkpt)) {
     callback(null, 'sd ckpt is exist');
