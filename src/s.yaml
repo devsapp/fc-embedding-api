@@ -37,7 +37,7 @@ services:
     actions:
       post-deploy: # 在deploy之前运行
         - component: fc invoke --service-name ${fc-model-download.output.service.name} --function-name model-download
-        - component: fc nas upload -r ./code/model-repo '/mnt/auto/embedding/text2vec-large-chinese'
+        # - component: fc nas upload -r ./code/model-repo '/mnt/auto/embedding/text2vec-large-chinese'
           path: ./
     props:
       region: ${vars.region}
