@@ -36,7 +36,8 @@ services:
     component: fc
     actions:
       pre-deploy:
-        - component: fc invoke  --function-name fc-model-download
+        - component: fc invoke  --service-name ${fc-model-download.output.service.name}
+            --function-name model-download
       post-deploy: # 在deploy之前运行
         - component: fc nas upload -r ./code/model-repo /mnt/auto/embedding
           path: ./
