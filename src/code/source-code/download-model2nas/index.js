@@ -5,7 +5,7 @@ const downloads = require('@serverless-devs/downloads').default;
 
 exports.handler = async (_event, _context, callback) => {
   const region = process.env.region || 'cn-hangzhou';
-  const fileUrl = `https://serverless-ai-models-cn-hangzhou.oss-cn-hangzhou-internal.aliyuncs.com/text2vec-large-chinese/pytorch_model.bin`;
+  const fileUrl = `https://serverless-ai-models-${region}.oss-cn-hangzhou-internal.aliyuncs.com/text2vec-large-chinese/pytorch_model.bin`;
   const filename = path.basename(fileUrl);
   const downloadDir = '/mnt/auto/embedding/text2vec-large-chinese';
   const sdCkpt = path.join(downloadDir, filename);
