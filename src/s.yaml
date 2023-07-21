@@ -13,14 +13,14 @@ services:
   fc-model-download:
     component: fc
     actions:
-      pre-deploy: 
-        - run: npm i 
+      pre-deploy:
+        - run: npm i
           path: ./code/source-code/download-model2nas
     props:
       region: ${vars.region} # 关于变量的使用方法，可以参考：https://www.serverless-devs.com/serverless-devs/yaml#变量赋值
       service: ${vars.service}
       function:
-        name: "model-download"
+        name: 'model-download'
         description: 'download model to nas'
         codeUri: './code/source-code/download-model2nas'
         runtime: nodejs16
@@ -67,7 +67,7 @@ services:
             /var/fc/lang/python3.10/bin::/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
           PYTHONPATH: /opt/python:/code
           MODEL_PATH: '/mnt/auto/embedding/text2vec-large-chinese'
-        name: embedding-service
+        name: '{{functionName}}'
         asyncConfiguration: {}
         codeUri: './code/source-code/embedding'
       triggers:
