@@ -18,7 +18,7 @@ exports.handler = async (_event, _context, callback) => {
     await downloads(fileUrl, {
       dest: downloadDir,
       filename,
-      extract: true,
+      extract: false,
     });
     callback(null, 'download success');
   }
