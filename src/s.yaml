@@ -88,4 +88,4 @@ services:
         - domainName: auto
           protocol: HTTP
           routeConfigs:
-            - path: /
+            - path: /*
