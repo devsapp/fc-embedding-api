@@ -28,7 +28,7 @@ services:
         memorySize: 3072
         cpu: 2.0
         diskSize: 512
-        instanceConcurrency: 1
+        instanceConcurrency: 100
         handler: index.handler
         environmentVariables:
           region: ${vars.region}
