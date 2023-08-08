@@ -15,7 +15,7 @@ def index():
 async def encode(request: EmbeddingRequest):
     return {
         "object": "list",
-        "embeddings": service.encode(request.sentences)
+        "data": service.encode(request.sentences)
     }
 
 

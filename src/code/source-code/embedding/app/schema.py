@@ -7,7 +7,7 @@ class EmbeddingRequest(BaseModel):
 
 
 class EmbeddingResponse(BaseModel):
-    data: List[Dict[str, Any]]=Field(alias="embeddings")
+    data: List[Dict[str, Any]]
     object:str
 
 
