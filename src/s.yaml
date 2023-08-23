@@ -3,6 +3,7 @@ name: fc-embedding-api
 access: default
 vars:
   region: '{{ region }}'
+  EMBEDDING_MODLE_NAME: 'bge-large-zh' #text2vec-large-chinese
   service:
     name: '{{ serviceName }}'
     description: 'embedding部署到函数计算，支持模型自定义'
@@ -66,7 +67,7 @@ services:
           PATH: >-
             /var/fc/lang/python3.10/bin::/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
           PYTHONPATH: /opt/python:/code
-          MODEL_PATH: '/mnt/auto/embedding/text2vec-large-chinese'
+          MODEL_PATH: '/mnt/auto/embedding/${vars.EMBEDDING_MODLE_NAME}'
         name: '{{functionName}}'
         asyncConfiguration: {}
         codeUri: './code/source-code/embedding'
