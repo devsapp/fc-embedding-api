@@ -3,8 +3,8 @@ Type: Application
 Name: fc-embedding-api
 Provider:
   - 阿里云
-Version: 0.0.2
-Description: 使用serverless devs将  开源Bert算法部署到函数计算上，内置bge-large-zh、text2vec-large,支持模型自定义
+Version: 0.0.3
+Description: 使用serverless devs将  开源Bert模型部署到函数计算上，内置bge-large-zh、text2vec-large,支持模型自定义
 HomePage: 项目首页地址
 Tags: #标签详情
   - 部署函数
