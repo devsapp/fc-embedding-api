@@ -3,7 +3,7 @@ Type: Application
 Name: fc-embedding-api
 Provider:
   - 阿里云
-Version: dev
+Version: 0.0.1
 Description: 使用serverless devs将Sentence-Transformers部署到函数计算上，支持模型自定义
 HomePage: 项目首页地址
 Tags: #标签详情
