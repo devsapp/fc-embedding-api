@@ -7,6 +7,10 @@ vars:
   service:
     name: '{{ serviceName }}'
     description: 'embedding部署到函数计算，支持模型自定义'
+    {{if vpcConfigType === 'auto'}}
+    vpcConfig: auto
+    nasConfig: auto
+    {{else}}
     nasConfig: # NAS配置, 配置后function可以访问指定NAS
       userId: 10003 # userID, 默认为10003
       groupId: 10003 # groupID, 默认为10003
@@ -19,6 +23,7 @@ vars:
       securityGroupId: '{{ securityGroupId }}'
       vswitchIds:
         - {{ vswitchId }}
+    {{/if}}
     internetAccess: true
 services:
   fc-model-download:
