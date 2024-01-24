@@ -13,14 +13,11 @@ exports.handler = async (_event, _context, callback) => {
     fs.mkdirSync(downloadDir, { recursive: true });
   }
   const sdCkpt = path.join(downloadDir, filename);
-  if (fs.existsSync(sdCkpt)) {
-    callback(null, 'sd ckpt is exist');
-  } else {
-    await downloads(fileUrl, {
-      dest: downloadDir,
-      filename,
-      extract: false,
-    });
-    callback(null, 'download success');
-  }
+  console.log('begin download', sdCkpt)
+  await downloads(fileUrl, {
+    dest: downloadDir,
+    filename,
+    extract: false,
+  });
+  callback(null, 'download success');
 };
