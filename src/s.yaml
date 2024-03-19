@@ -1,96 +1,78 @@
-edition: 1.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: fc-embedding-api
-access: default
+edition: 3.0.0
+name: fc3-embedding-api
 vars:
   region: '{{ region }}'
+  functionName: '{{ functionName }}'
   EMBEDDING_MODLE_NAME: 'bge-large-zh' #text2vec-large-chinese
-  service:
-    name: '{{ serviceName }}'
-    description: 'embedding部署到函数计算，支持模型自定义'
-    {{if vpcConfigType === 'auto'}}
-    vpcConfig: auto
-    nasConfig: auto
-    {{else}}
-    nasConfig: # NAS配置, 配置后function可以访问指定NAS
-      userId: 10003 # userID, 默认为10003
-      groupId: 10003 # groupID, 默认为10003
-      mountPoints: # 目录配置
-        - serverAddr: '{{ mountPointsServerAddr }}'
-          nasDir: '/{{ serviceName }}' # NAS目录
-          fcDir: /mnt/auto # 函数计算目录
-    vpcConfig:
-      vpcId: '{{ vpcId }}'
-      securityGroupId: '{{ securityGroupId }}'
-      vswitchIds:
-        - {{ vswitchId }}
-    {{/if}}
+  download_path: '/mnt/embedding-download'
+template:
+  Embedding-Template:
     internetAccess: true
-services:
+    vpcConfig: auto
+resources:
   fc-model-download:
-    component: fc
+    component: fc3
     actions:
-      pre-deploy:
-        - run: npm i
-          path: ./code/source-code/download-model2nas
+      complete-deploy: # 在deploy之前运行
+        - component: fc3 invoke --function-name embedding-download --region ${vars.region} --timeout 60000
     props:
       region: ${vars.region} # 关于变量的使用方法，可以参考：https://www.serverless-devs.com/serverless-devs/yaml#变量赋值
-      service: ${vars.service}
-      function:
-        name: 'model-download'
-        description: 'download model to nas'
-        codeUri: './code/source-code/download-model2nas'
-        runtime: nodejs16
-        timeout: 600
-        memorySize: 3072
-        cpu: 2.0
-        diskSize: 512
-        instanceConcurrency: 100
-        handler: index.handler
-        environmentVariables:
-          region: ${vars.region}
+      functionName: 'embedding-download'
+      description: '辅助函数，将模型下载到nas'
+      code: './code/source-code/download-model2nas'
+      runtime: nodejs16
+      timeout: 6000
+      memorySize: 4096
+      cpu: 2.0
+      diskSize: 512
+      instanceConcurrency: 100
+      handler: index.handler
+      nasConfig: auto
+      environmentVariables:
+        region: ${vars.region}
+        download_path: ${vars.download_path}
+      layers:
+        - >-
+          acs:fc:${vars.region}:1154600634854327:layers/fc-embedding-api-download-nas/versions/1
+    extend:
+      name: Embedding-Template
   embedding-service:
-    component: fc
-    actions:
-      post-deploy: # 在deploy之前运行
-        - component: fc nas upload -r ./code/model-repo '/mnt/auto/embedding'
-          path: ./  
-        - component: fc invoke --service-name ${fc-model-download.output.service.name}
-            --function-name model-download
+    component: fc3
     props:
       region: ${vars.region}
-      service: ${vars.service}
-      function:
-        handler: index.handler
-        description: embedding service
-        timeout: 7200
-        caPort: 8000
-        layers:
-          - acs:fc:{{region}}:1431999136518149:layers/FastAPI-Python310/versions/1
-          - acs:fc:{{region}}:1431999136518149:layers/NLP-Python310/versions/1
-        customRuntimeConfig:
-          command:
-            - python3
-            - '-u'
-            - app/main.py
-        instanceType: c1
-        runtime: custom.debian10
-        instanceConcurrency: 10
-        cpu: 8
-        memorySize: 32768
-        diskSize: 10240
-        environmentVariables:
-          PATH: >-
-            /var/fc/lang/python3.10/bin::/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
-          PYTHONPATH: /opt/python:/code
-          MODEL_PATH: '/mnt/auto/embedding/${vars.EMBEDDING_MODLE_NAME}'
-        name: '{{functionName}}'
-        asyncConfiguration: {}
-        codeUri: './code/source-code/embedding'
+      handler: index.handler
+      description: embedding service
+      timeout: 7200
+      layers:
+        - acs:fc:{{region}}:1431999136518149:layers/FastAPI-Python310/versions/1
+        - acs:fc:{{region}}:1431999136518149:layers/NLP-Python310/versions/1
+      customRuntimeConfig:
+        port: 8000
+        command:
+          - python3
+          - '-u'
+          - app/main.py
+      instanceType: c1
+      runtime: custom.debian10
+      instanceConcurrency: 10
+      cpu: 8
+      memorySize: 32768
+      diskSize: 512
+      environmentVariables:
+        PATH: >-
+          /var/fc/lang/python3.10/bin::/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
+        PYTHONPATH: /opt/python:/code
+        MODEL_PATH: '${vars.download_path}/${vars.EMBEDDING_MODLE_NAME}'
+        MODEL_FILE_HASH: '837df24cd1be597c6a149e3a051019c271dda0c7aa3f358eff74f9dc73c56c47'
+      functionName: '${vars.functionName}'
+      asyncConfiguration: {}
+      code: './code/source-code/embedding'
+      nasConfig: ${resources.fc-model-download.output.nasConfig}
       triggers:
-        - name: httpTrigger
+        - triggerName: httpTrigger
           description: ''
-          type: http
-          config:
+          triggerType: http
+          triggerConfig:
             methods:
               - GET
               - POST
@@ -100,8 +82,15 @@ services:
               - OPTIONS
             authType: anonymous
             disableURLInternet: false
-      customDomains:
-        - domainName: auto
-          protocol: HTTP
-          routeConfigs:
-            - path: /*
+    extend:
+      name: Embedding-Template
+  embedding-service-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ${vars.functionName}
